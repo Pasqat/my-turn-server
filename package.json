@@ -1,16 +1,19 @@
 {
   "name": "il_mio_turno-server",
   "version": "1.0.0",
-  "description": "Server for my-turn app",
+  "description": "Server for My-turn app",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pasqat/my-turn-server.git"
   },
   "author": "Pasquale Matarrese",
   "license": "ISC",
-  "dependencies": {
-    "apollo-server": "^2.22.2",
-    "graphql": "^15.5.0"
-  }
+  "bugs": {
+    "url": "https://github.com/Pasqat/my-turn-server/issues"
+  },
+  "homepage": "https://github.com/Pasqat/my-turn-server#readme"
 }
