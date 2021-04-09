@@ -1,6 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
-const teams = require('./datamock.js')
+let teams = require('./datamock.js')
 const app = express()
 
 // Middleware
@@ -26,10 +26,12 @@ app.get('/api/teams/:id', (req,res) => {
   }
 })
 
-app.delete('/api/team/:id', (req, res) => {
+app.delete('/api/teams/:id', (req, res) => {
   const id = req.params.id
-  teams = teams.filter(team => team.id !== id)
-
+  teams = teams.filter(team => {
+    console.log(team.id, id)
+    team.id !== id
+  })
   res.status(204).end()
 })
 
