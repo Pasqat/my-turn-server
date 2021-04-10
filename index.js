@@ -1,14 +1,18 @@
 const express = require('express');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid')
+const cors = require('cors')
+const middleware = require('./utils/middelware')
 
 let teams = require('./datamock.js')
+
 const app = express()
 
 // Middleware
 app.use(helmet());
-
+app.use(cors())
 app.use(express.json())
+app.use(middleware.requestLogger)
 
 // TODO: use an external file maybe
 app.get('/', (req,res) => {
@@ -25,6 +29,7 @@ app.get('/api/teams/:id', (req,res) => {
 
   if (team) {
   res.json(team)
+
   } else {
     res.status(404).end()
   }
@@ -49,13 +54,15 @@ app.post('/api/teams', (req, res) => {
     name: body.name,
     id: uuidv4(),
     schedule: body.schedule || {},
-    creationDate: new Date(),
+    dateOfCreation: new Date(),
   }
 
   teams = teams.concat(team)
 
   res.json(team)
 })
+
+app.use(middleware.unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => {
