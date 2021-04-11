@@ -92,7 +92,7 @@ app.get('/api/schedule/:year/:month', (req, res) => {
   } else {
     return res.status(201).json([])
   }
-  res.send(req.params)
+  return res.send(req.params)
 })
 
 app.delete('/api/schedule/:year/:month/:id', (req, res) => {
