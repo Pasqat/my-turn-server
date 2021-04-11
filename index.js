@@ -9,6 +9,7 @@ let teams = require('./datamock.js')
 const app = express()
 
 // Middleware
+app.use(express.static('build'))
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
@@ -16,7 +17,7 @@ app.use(middleware.requestLogger);
 
 // TODO: use an external file maybe
 app.get('/', (req,res) => {
-  res.send('Hello World')
+  // res.send('./build/index.js')
 })
 
 app.get('/api/teams', (req, res) => {
