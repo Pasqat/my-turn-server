@@ -95,7 +95,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,
@@ -130,7 +130,7 @@ const scheduledTime = [
           ]
         },
         {
-          user: 'Martina',
+          name: 'Martina',
           userId: 'e0df72b8-574a-43b2-b462-d4bccb8b2bba',
           days: [
             'night',
@@ -239,7 +239,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,
@@ -274,7 +274,7 @@ const scheduledTime = [
           ]
         },
         {
-          user: 'Martina',
+          name: 'Martina',
           userId: 'e0df72b8-574a-43b2-b462-d4bccb8b2bba',
           days: [
             'night',
@@ -383,7 +383,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,
@@ -418,7 +418,7 @@ const scheduledTime = [
           ]
         },
         {
-          user: 'Martina',
+          name: 'Martina',
           userId: 'e0df72b8-574a-43b2-b462-d4bccb8b2bba',
           days: [
             'night',
@@ -527,7 +527,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,
@@ -562,7 +562,7 @@ const scheduledTime = [
           ]
         },
         {
-          user: 'Martina',
+          name: 'Martina',
           userId: 'e0df72b8-574a-43b2-b462-d4bccb8b2bba',
           days: [
             'night',
@@ -647,7 +647,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,
@@ -721,7 +721,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,
@@ -795,7 +795,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,
@@ -869,7 +869,7 @@ const scheduledTime = [
       ],
       [
         {
-          user: 'Alessia',
+          name: 'Alessia',
           userId: '2fee0052-93ef-4512-a376-337634426df6',
           days: [
             null,

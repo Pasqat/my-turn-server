@@ -126,7 +126,7 @@ app.post('/api/schedule/:year/:month', (req, res) => {
   }
 
   const userSchedule = {
-    user: body.name,
+    name: body.name,
     userId: uuidv4(), 
     days: body.days || [],
     dateOfCreation: new Date(),
