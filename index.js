@@ -17,10 +17,6 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 // TODO: use an external file maybe
-app.get('/', (req,res) => {
-  // res.send('./build/index.js')
-})
-
 app.get('/api/teams', (req, res) => {
   res.json(teams)
 })
