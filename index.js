@@ -87,12 +87,14 @@ app.get('/api/schedule/:year/:month', (req, res) => {
   const scheduledTimeBlock = findMonth(scheduledTime, year,month)
 
   if (scheduledTimeBlock) {
-  res.json(scheduledTimeBlock)
+
+  return res.json(scheduledTimeBlock)
 
   } else {
-    return res.status(201).json([])
+    res.status(201).json([])
   }
-  return res.send(req.params)
+
+  res.send(req.params)
 })
 
 app.delete('/api/schedule/:year/:month/:id', (req, res) => {
