@@ -33,14 +33,14 @@ app.get('/api/teams/:id', (req,res) => {
   res.json(team)
 
   } else {
-    res.status(404).end()
+    return res.status(404).end()
   }
 })
 
 app.delete('/api/teams/:id', (req, res) => {
   const id = req.params.id
   teams = teams.filter(team => team.id !== id)
-  res.status(204).end()
+  return res.status(204).end()
 })
 
 app.post('/api/teams', (req, res) => {
@@ -79,7 +79,7 @@ app.get('/api/schedule/:year', (req,res) => {
   res.json(scheduledTimeBlock)
 
   } else {
-    res.status(404).end()
+    return res.status(404).end()
   }
 })
 
@@ -94,7 +94,7 @@ app.get('/api/schedule/:year/:month', (req, res) => {
   res.json(scheduledTimeBlock)
 
   } else {
-    res.status(201).json([])
+    return res.status(201).json([])
   }
   res.send(req.params)
 })
@@ -111,7 +111,7 @@ app.delete('/api/schedule/:year/:month/:id', (req, res) => {
   scheduledTime
     .find(s => +s.year === +year).userSchedule[month] = updatedMonth
 
-  res.status(204).end()
+  return res.status(204).end()
 })
 
 app.post('/api/schedule/:year/:month', (req, res) => {
