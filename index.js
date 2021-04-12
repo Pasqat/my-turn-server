@@ -53,7 +53,6 @@ app.post('/api/teams', (req, res) => {
 
   const team = {
     name: body.name,
-    id: uuidv4(),
     // TODO schedule will be populated from the scheduleTime dataset
     schedule: body.schedule || {},
     dateOfCreation: new Date(),
@@ -64,11 +63,15 @@ app.post('/api/teams', (req, res) => {
   res.json(team)
 })
 
+
+
 app.get('/api/schedule', (req, res) => {
+
   Schedule.find({}).then(schedule => {
   console.log(schedule.userSchedule)
   res.json(schedule)
   })
+
 })
 
 app.get('/api/schedule/:year', (req,res) => {
@@ -84,14 +87,13 @@ app.get('/api/schedule/:year', (req,res) => {
 
 })
 
-// strangly enough in a get the hypen - doesn't work in post it does
 app.get('/api/schedule/:year/:month', (req, res) => {
   const year = req.params.year;
-  const month = req.params.month;
+  const month = Number(req.params.month);
 
   Schedule.findOne({year: year}).then(schedule => {
-    console.log(schedule)
-    const scheduledTimeBlock = schedule.userSchedule[month]
+    const scheduledTimeBlock = schedule.userSchedule
+      .reduce((a, b) => b.month === month ? [...a, b] : a, [])
 
     if (scheduledTimeBlock) {
       return res.json(scheduledTimeBlock)
@@ -100,26 +102,24 @@ app.get('/api/schedule/:year/:month', (req, res) => {
     }
 
   }).catch(err => console.log(err))
-
-
-  // const scheduledTimeBlock = findMonth(scheduledTime, year,month)
-  
-
 })
 
-app.delete('/api/schedule/:year/:month/:id', (req, res) => {
+app.delete('/api/schedule/:year/:id', (req, res) => {
   const id = req.params.id
   const year = req.params.year
-  const month = req.params.month
 
-  let selectMonth = findMonth(scheduledTime, year,month)
-
-  let updatedMonth = selectMonth.filter(sm => sm.userId !== id)
-
-  scheduledTime
-    .find(s => +s.year === +year).userSchedule[month] = updatedMonth
-
-  return res.status(204).end()
+  Schedule.updateOne(
+    { year: year},
+    {
+      $pull: {
+        "userSchedule": {
+          "_id": id
+        }
+      }
+    }
+  ).then(() => {
+    return res.status(204).end()
+  })
 })
 
 app.post('/api/schedule/:year/:month', (req, res) => {

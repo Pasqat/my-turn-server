@@ -19,6 +19,7 @@ const acceptedSchiftSchema = new mongoose.Schema({
 const userScheduleSchema = new mongoose.Schema({
   name: String,
   userId: String,
+  month: Number,
   days: [String]
 })
 
@@ -27,7 +28,7 @@ const scheduleSchema = new mongoose.Schema({
   teamId: String,
   acceptedSchift: [acceptedSchiftSchema],
   year: Number,
-  userSchedule: [[userScheduleSchema]]
+  userSchedule: [userScheduleSchema]
 })
 
 scheduleSchema.set('toJSON', {
