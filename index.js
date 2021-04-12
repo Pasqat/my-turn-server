@@ -4,11 +4,10 @@ const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid')
 const cors = require('cors')
 const middleware = require('./utils/middelware')
-const { findMonth } = require('./utils/function')
 
 const Schedule = require('./models/schedule')
 
-let { teams, scheduledTime } = require('./datamock.js')
+let { teams } = require('./datamock.js')
 
 const app = express()
 
@@ -124,8 +123,8 @@ app.delete('/api/schedule/:year/:id', (req, res) => {
 
 app.post('/api/schedule/:year/:month', (req, res) => {
   const body = req.body;
-  const year = req.params.year;
-  const month = req.params.month
+  const year = Number(req.params.year);
+  const month = Number(req.params.month)
 
   if (!body.name) {
     return res.status(400).json({
@@ -133,35 +132,39 @@ app.post('/api/schedule/:year/:month', (req, res) => {
     })
   }
 
-  const userSchedule = {
+  let userSchedule = {
     name: body.name,
-    userId: uuidv4(), 
+    userId: uuidv4(),
     days: body.days || [],
-    dateOfCreation: new Date(),
+    month: month
   }
 
-  let yearCheck = scheduledTime.findIndex(s => +s.year === +year)
 
-  if (yearCheck < 0) {
-    let newSchedule = {
-      teamName: body.teamName,
-      teamId: body.teamId,
-      year: Number(year),
-      userSchedule: Array(12).fill(null)
-    }
-    scheduledTime.push(newSchedule)
-  }
+  Schedule.findOne({year: year})
+    .then(yearCheck => {
+      if (!yearCheck) {
+        const schedule = new Schedule({
+          teamName: body.teamName,
+          teamId: body.teamId,
+          // TODO acceptedSchift are best in a own collection and populate
+          acceptedSchift: [
+          ],
+          year: year,
+          userSchedule: [userSchedule]
+        })
 
-  let selectMonth = findMonth(scheduledTime, year, month)
+        schedule.save().then(() => res.json(userSchedule))
 
-  if (selectMonth === null) selectMonth = []
+      } else {
+        Schedule.updateOne(
+          {year: year},
+          {
+            $push: {'userSchedule': userSchedule}
+          }   
+        ).then(() => res.json(userSchedule))
+      }
+    })
 
-  const updatedMonth = selectMonth.concat(userSchedule)
-
-  scheduledTime
-    .find(s => +s.year === +year).userSchedule[month] = updatedMonth
-
-  res.json(userSchedule)
 })
 
 app.put('/api/schedule/:year/:month/:id', (req, res) => {
