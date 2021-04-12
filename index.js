@@ -1,9 +1,12 @@
+require("dotenv").config();
 const express = require('express');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid')
 const cors = require('cors')
 const middleware = require('./utils/middelware')
 const { findMonth } = require('./utils/function')
+
+const Schedule = require('./models/schedule')
 
 let { teams, scheduledTime } = require('./datamock.js')
 
@@ -61,22 +64,24 @@ app.post('/api/teams', (req, res) => {
   res.json(team)
 })
 
-// testing new data structure
 app.get('/api/schedule', (req, res) => {
-  res.json(scheduledTime)
+  Schedule.find({}).then(schedule => {
+  console.log(schedule.userSchedule)
+  res.json(schedule)
+  })
 })
 
 app.get('/api/schedule/:year', (req,res) => {
-  const year = req.params.year
-  const scheduledTimeBlock = scheduledTime
-    .find(s => +s.year === +year)
+  const year = Number(req.params.year)
 
-  if (scheduledTimeBlock) {
-  res.json(scheduledTimeBlock)
+  Schedule.find({year: year}).then(schedule => {
+    if (Array.isArray(schedule)) {
+      res.json(schedule)
+    } else {
+      return res.status(404).end()
+    }
+  })
 
-  } else {
-    return res.status(404).end()
-  }
 })
 
 // strangly enough in a get the hypen - doesn't work in post it does
@@ -84,17 +89,22 @@ app.get('/api/schedule/:year/:month', (req, res) => {
   const year = req.params.year;
   const month = req.params.month;
 
-  const scheduledTimeBlock = findMonth(scheduledTime, year,month)
+  Schedule.findOne({year: year}).then(schedule => {
+    console.log(schedule)
+    const scheduledTimeBlock = schedule.userSchedule[month]
 
-  if (scheduledTimeBlock) {
+    if (scheduledTimeBlock) {
+      return res.json(scheduledTimeBlock)
+    } else {
+      res.status(201).json([])
+    }
 
-  return res.json(scheduledTimeBlock)
+  }).catch(err => console.log(err))
 
-  } else {
-    res.status(201).json([])
-  }
 
-  res.send(req.params)
+  // const scheduledTimeBlock = findMonth(scheduledTime, year,month)
+  
+
 })
 
 app.delete('/api/schedule/:year/:month/:id', (req, res) => {
@@ -154,9 +164,17 @@ app.post('/api/schedule/:year/:month', (req, res) => {
   res.json(userSchedule)
 })
 
+app.put('/api/schedule/:year/:month/:id', (req, res) => {
+  const body = req.body;
+  const year = req.params.year
+  const month = req.params.month
+
+  // TODO here the magic
+})
+
 app.use(middleware.unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
