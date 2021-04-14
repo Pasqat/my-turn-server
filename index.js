@@ -28,7 +28,7 @@ app.get('/api/teams/:id', (req,res) => {
   const team = teams.find(team => team.id === id)
 
   if (team) {
-  res.json(team)
+    res.json(team)
 
   } else {
     return res.status(404).end()
@@ -66,116 +66,148 @@ app.post('/api/teams', (req, res) => {
 
 app.get('/api/schedule', (req, res) => {
 
-  Schedule.find({}).then(schedule => {
-  console.log(schedule.userSchedule)
-  res.json(schedule)
-  })
+    Schedule.find({}).then(schedule => {
+        if (schedule) {
+            console.log(schedule.userSchedule)
+            res.json(schedule)
+        } else {
+            res.status(404).end()
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(500).end()
+    })
 
 })
 
 app.get('/api/schedule/:year', (req,res) => {
-  const year = Number(req.params.year)
+    const year = Number(req.params.year)
 
-  Schedule.find({year: year}).then(schedule => {
-    if (Array.isArray(schedule)) {
-      res.json(schedule)
-    } else {
-      return res.status(404).end()
-    }
-  })
+    Schedule.find({year: year}).then(schedule => {
+        if (Array.isArray(schedule)) {
+            res.json(schedule)
+        } else {
+            return res.status(404).end()
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(500).end()
+    })
 
 })
 
 app.get('/api/schedule/:year/:month', (req, res) => {
-  const year = req.params.year;
-  const month = Number(req.params.month);
+    const year = req.params.year;
+    const month = Number(req.params.month);
 
-  Schedule.findOne({year: year}).then(schedule => {
-    const scheduledTimeBlock = schedule.userSchedule
-      .reduce((a, b) => b.month === month ? [...a, b] : a, [])
+    Schedule.findOne({year: year}).then(schedule => {
+        const scheduledTimeBlock = schedule.userSchedule
+            .reduce((a, b) => b.month === month ? [...a, b] : a, [])
 
-    if (scheduledTimeBlock) {
-      return res.json(scheduledTimeBlock)
-    } else {
-      res.status(201).json([])
-    }
+        if (scheduledTimeBlock) {
+            return res.json(scheduledTimeBlock)
+        } else {
+            res.status(201).json([])
+        }
 
-  }).catch(err => console.log(err))
+    }).catch(err => next(err))
 })
 
-app.delete('/api/schedule/:year/:id', (req, res) => {
-  const id = req.params.id
-  const year = req.params.year
+app.delete('/api/schedule/:year/:id', (req, res, next) => {
+    const id = req.params.id
+    const year = req.params.year
 
-  Schedule.updateOne(
-    { year: year},
-    {
-      $pull: {
-        "userSchedule": {
-          "_id": id
+    Schedule.updateOne(
+        { year: year},
+        {
+            $pull: {
+                "userSchedule": {
+                    "_id": id
+                }
+            }
         }
-      }
-    }
-  ).then(() => {
-    return res.status(204).end()
-  })
+    ).then(() => {
+        return res.status(204).end()
+    }).catch(error => next(error))
 })
 
 app.post('/api/schedule/:year/:month', (req, res) => {
-  const body = req.body;
-  const year = Number(req.params.year);
-  const month = Number(req.params.month)
+    const body = req.body;
+    const year = Number(req.params.year);
+    const month = Number(req.params.month)
 
-  if (!body.name) {
-    return res.status(400).json({
-      error: 'No Name provided'
-    })
-  }
-
-  let userSchedule = {
-    name: body.name,
-    userId: uuidv4(),
-    days: body.days || [],
-    month: month
-  }
-
-
-  Schedule.findOne({year: year})
-    .then(yearCheck => {
-      if (!yearCheck) {
-        const schedule = new Schedule({
-          teamName: body.teamName,
-          teamId: body.teamId,
-          // TODO acceptedSchift are best in a own collection and populate
-          acceptedSchift: [
-          ],
-          year: year,
-          userSchedule: [userSchedule]
+    if (!body.name) {
+        return res.status(400).json({
+            error: 'No Name provided'
         })
+    }
 
-        schedule.save().then(() => res.json(userSchedule))
+    let userSchedule = {
+        name: body.name,
+        userId: uuidv4(),
+        days: body.days || [],
+        month: month
+    }
 
-      } else {
-        Schedule.updateOne(
-          {year: year},
-          {
-            $push: {'userSchedule': userSchedule}
-          }   
-        ).then(() => res.json(userSchedule))
-      }
-    })
+    Schedule.findOne({year: year})
+        .then(yearCheck => {
+            if (!yearCheck) {
+                const schedule = new Schedule({
+                    teamName: body.teamName,
+                    teamId: body.teamId,
+                    // TODO acceptedSchift are best in a own collection and populate
+                    acceptedSchift: [
+                    ],
+                    year: year,
+                    userSchedule: [userSchedule]
+                })
+
+                schedule.save().then(() => res.json(userSchedule))
+
+            } else {
+                Schedule.updateOne(
+                    {year: year},
+                    {$push: {'userSchedule': userSchedule}}   
+                ).then(() => res.json(userSchedule))
+            }
+        })
 
 })
 
-app.put('/api/schedule/:year/:month/:id', (req, res) => {
-  const body = req.body;
-  const year = req.params.year
-  const month = req.params.month
+app.put('/api/schedule/:year/:id', (req, res) => {
+    const body = req.body;
+    const year = req.params.year
+    const id = req.params.id
 
-  // TODO here the magic
+    console.log('body',body)
+
+    let newSchedule = body
+
+    console.log(newSchedule)
+
+    Schedule
+        .updateOne(
+            {year: year, "userSchedule._id": id},
+            {"userSchedule.$.days" : newSchedule},
+            { new: true } 
+        ).then(result => {
+            console.log('update', result)
+            res.status(200).json(result)
+        }).catch(error => console.error(error))
+
+    // Schedule
+    //     .updateOne(
+    //         {year: year, "userSchedule": {"_id": id}},
+    //         { $pull: { "userSchedule": { "_id": id } } }
+    //     ).then(result => {
+    //         console.log('update', result)
+    //         res.status(200).json(result)
+    //     }).catch(error => console.error(error))
 })
 
 app.use(middleware.unknownEndpoint)
+
+app.use(middleware.errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
