@@ -5,19 +5,18 @@ const {
     v4: uuidv4
 } = require("uuid")
 
-schedulesRouter.get("/", (req, res) => {
-
-    Schedule.find({}).then(schedule => {
+schedulesRouter.get("/", async (req, res) => {
+    try{
+        const schedule = await Schedule.find({})
         if (schedule) {
             res.json(schedule)
         } else {
             res.status(404).end()
         }
-    }).catch(err => {
-        logger.error(err)
+    } catch(exception) {
+        logger.error(exception)
         res.status(500).end()
-    })
-
+    }
 })
 
 schedulesRouter.get("/:year", (req, res) => {

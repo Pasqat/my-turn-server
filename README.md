@@ -9,3 +9,14 @@
 - [X] delete DB entry for schedule collection
 - [X] update DB entry for schedule collection
 - [ ] A new added person can't be edited.
+- [ ] Why mongoose validation don't work?
+- [ ] Team collections
+    - [ ] controller
+    - [ ] tests
+- [ ] accepted shift 
+    - [ ] controller
+    - [ ] tests
+    - [ ] change name?
+- [ ] Refactor with async/await
+    - [ ] schedule controller
+    - [ ] team controller
