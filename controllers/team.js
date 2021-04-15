@@ -6,11 +6,11 @@ const {
 
 
 // TODO: use an external file maybe
-app.get('/api/teams', (req, res) => {
+app.get("/api/teams", (req, res) => {
     res.json(teams)
 })
 
-app.get('/api/teams/:id', (req, res) => {
+app.get("/api/teams/:id", (req, res) => {
     const id = req.params.id
     const team = teams.find(team => team.id === id)
 
@@ -22,18 +22,18 @@ app.get('/api/teams/:id', (req, res) => {
     }
 })
 
-app.delete('/api/teams/:id', (req, res) => {
+app.delete("/api/teams/:id", (req, res) => {
     const id = req.params.id
     teams = teams.filter(team => team.id !== id)
     return res.status(204).end()
 })
 
-app.post('/api/teams', (req, res) => {
-    const body = req.body;
+app.post("/api/teams", (req, res) => {
+    const body = req.body
 
     if (!body.name) {
         return res.status(400).json({
-            error: 'No Team Name provided'
+            error: "No Team Name provided"
         })
     }
 

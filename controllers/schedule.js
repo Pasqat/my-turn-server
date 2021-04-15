@@ -93,8 +93,8 @@ schedulesRouter.post("/:year/:month", (req, res) => {
     }
 
     Schedule.findOne({
-            year: year
-        })
+        year: year
+    })
         .then(yearCheck => {
             if (!yearCheck) {
                 const schedule = new Schedule({
