@@ -8,3 +8,4 @@
 - [X] add DB entry for schedule collection
 - [X] delete DB entry for schedule collection
 - [X] update DB entry for schedule collection
+- [ ] A new added person can't be edited.
