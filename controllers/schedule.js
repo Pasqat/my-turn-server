@@ -1,4 +1,5 @@
 const schedulesRouter = require("express").Router()
+const logger = require("../utils/logger")
 const Schedule = require("../models/schedule")
 const {
     v4: uuidv4
@@ -8,13 +9,12 @@ schedulesRouter.get("/", (req, res) => {
 
     Schedule.find({}).then(schedule => {
         if (schedule) {
-            console.log(schedule.userSchedule)
             res.json(schedule)
         } else {
             res.status(404).end()
         }
     }).catch(err => {
-        console.log(err)
+        logger.error(err)
         res.status(500).end()
     })
 
@@ -32,7 +32,7 @@ schedulesRouter.get("/:year", (req, res) => {
             return res.status(404).end()
         }
     }).catch(err => {
-        console.log(err)
+        logger.error(err)
         res.status(500).end()
     })
 
@@ -126,11 +126,7 @@ schedulesRouter.put("/:year/:id", (req, res) => {
     const year = req.params.year
     const id = req.params.id
 
-    console.log("body", body)
-
     let newSchedule = body
-
-    console.log(newSchedule)
 
     Schedule
         .updateOne({
@@ -141,9 +137,8 @@ schedulesRouter.put("/:year/:id", (req, res) => {
         }, {
             new: true
         }).then(result => {
-            console.log("update", result)
             res.status(200).json(result)
-        }).catch(error => console.error(error))
+        }).catch(error => logger.error(error))
 })
 
 module.exports = schedulesRouter

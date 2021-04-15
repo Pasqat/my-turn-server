@@ -6,13 +6,12 @@
     "scripts": {
         "start": "NODE_ENV=production node index.js",
         "dev": "NODE_ENV=development nodemon index.js",
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "NODE_ENV=test jest --verbose",
         "build:ui": "rm -rf build && cd ../il_mio_turno/ && npm run build --prod && cp -r build ../il_mio_turno-server",
         "deploy": "git push heroku main",
         "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",
         "logs:prod": "heroku logs --tail",
-        "lint": "eslint .",
-        "test": "NODE_ENV=test jest --verbose"
+        "lint": "eslint ."
     },
     "repository": {
         "type": "git",
@@ -36,6 +35,7 @@
     "devDependencies": {
         "eslint": "^7.24.0",
         "jest": "^26.6.3",
-        "nodemon": "^2.0.7"
+        "nodemon": "^2.0.7",
+        "supertest": "^6.1.3"
     }
 }
