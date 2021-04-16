@@ -6,18 +6,20 @@ const {
     v4: uuidv4
 } = require("uuid")
 const Schedule = require("../models/schedule")
-
-const initialSchedule = require("../datamock").scheduledTime
+const helper = require("./test_helper")
 
 beforeEach(async () => {
     await Schedule.deleteMany({})
-    let scheduleObject = new Schedule(initialSchedule[0])
+
+    let scheduleObject = new Schedule(helper.initialSchedule[0])
     await scheduleObject.save()
-    scheduleObject = new Schedule(initialSchedule[1])
+
+    scheduleObject = new Schedule(helper.initialSchedule[1])
     await scheduleObject.save()
 })
 
 describe("testing content and format of schedule", () => {
+
     test('schedules are returned as json', async () => {
         await api
             .get('/api/schedule')
@@ -27,7 +29,7 @@ describe("testing content and format of schedule", () => {
 
     test("all schedules are returned", async () => {
         const response = await api.get("/api/schedule")
-        expect(response.body).toHaveLength(initialSchedule.length)
+        expect(response.body).toHaveLength(helper.initialSchedule.length)
     })
 
     test("a specific schedule is within the returned schedule", async () => {
@@ -65,13 +67,11 @@ describe("testing content and format of schedule", () => {
             .expect(200)
             .expect("Content-Type", /application\/json/)
 
-        const response = await api.get('/api/schedule/2021')
-        const userScheduleNames = [...response.body[0].userSchedule].map(r => r.name)
+        const schedulesAtEnd = await helper.getFirstUserSchedule(2021)
+        expect(schedulesAtEnd).toHaveLength(helper.initialSchedule[0].userSchedule.length + 1 )
 
-        console.log(userScheduleNames)
-
-        expect(response.body[0].userSchedule).toHaveLength(initialSchedule[0].userSchedule.length + 1 )
-        expect(userScheduleNames).toContain("Tester")
+        const namesInSchedule = schedulesAtEnd.map(schedule => schedule.name)
+        expect(namesInSchedule).toContain("Tester")
     })
 
     test("schedule without content is not added", async () => {
@@ -86,8 +86,9 @@ describe("testing content and format of schedule", () => {
             .expect(400)
 
         const response = await api.get("/api/schedule/2021")
+        const schedulesAtEnd = await helper.getFirstUserSchedule(2021)
 
-        expert(response.body[0].userSchedule).toHaveLength(initialSchedule[0].userSchedule.length)
+        expect(schedulesAtEnd).toHaveLength(helper.initialSchedule[0].userSchedule.length)
     })
 })
 

@@ -73,16 +73,17 @@ schedulesRouter.delete("/:year/:id", (req, res, next) => {
     }).catch(error => next(error))
 })
 
-schedulesRouter.post("/:year/:month", (req, res) => {
+schedulesRouter.post("/:year/:month", async (req, res, next) => {
     const body = req.body
     const year = Number(req.params.year)
     const month = Number(req.params.month)
 
-    // if (!body.name) {
-    //     return res.status(400).json({
-    //         error: 'No Name provided'
-    //     })
-    // }
+    // FIXME this should be done by mongoose validation!!!
+    if (!body.name) {
+        return res.status(400).json({
+            error: 'No Name provided'
+        })
+    }
 
     let userSchedule = {
         name: body.name,
@@ -91,33 +92,33 @@ schedulesRouter.post("/:year/:month", (req, res) => {
         month: month
     }
 
-    Schedule.findOne({
-        year: year
-    })
-        .then(yearCheck => {
-            if (!yearCheck) {
-                const schedule = new Schedule({
-                    teamName: body.teamName,
-                    teamId: body.teamId,
-                    // TODO acceptedSchift are best in a own collection and populate
-                    acceptedSchift: [],
-                    year: year,
-                    userSchedule: [userSchedule]
-                })
+    try {
+        const yearCheck = await Schedule.findOne({year})
 
-                schedule.save().then(() => res.json(userSchedule))
+        if (!yearCheck) {
+            const schedule = new Schedule({
+                teamName: body.teamName,
+                teamId: body.teamId,
+                // TODO acceptedSchift are best in a own collection and populate
+                acceptedSchift: [],
+                year: year,
+                userSchedule: [userSchedule]
+            })
 
-            } else {
-                Schedule.updateOne({
-                    year: year
-                }, {
-                    $push: {
-                        "userSchedule": userSchedule
-                    }
-                }).then(() => res.json(userSchedule))
-            }
-        })
+            const savedSchedule = await schedule.save()
+            res.json(savedSchedule)
+        }
 
+        const updatedSchedule = await Schedule
+            .updateOne({year: year}, {$push : {"userSchedule": userSchedule}})
+
+        res.json(updatedSchedule)
+
+    } catch (exception) {
+
+        next(exception)
+
+    }
 })
 
 schedulesRouter.put("/:year/:id", (req, res) => {
