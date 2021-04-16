@@ -1,5 +1,6 @@
 const config = require("./utils/config")
 const express = require("express")
+require("express-async-errors")     // no need to use try/catch and next()
 const app = express()
 const helmet = require("helmet")
 const cors = require("cors")

@@ -79,16 +79,32 @@ describe("testing content and format of schedule", () => {
             days: [],
             month: 1
         }
-
+        
         await api
             .post("/api/schedule/2021/1")
             .send(newSchedule)
             .expect(400)
 
-        const response = await api.get("/api/schedule/2021")
         const schedulesAtEnd = await helper.getFirstUserSchedule(2021)
 
         expect(schedulesAtEnd).toHaveLength(helper.initialSchedule[0].userSchedule.length)
+    })
+
+    test("a schedule can be deleted", async () => {
+        const year = 2021
+        const scheduleAtStart = await helper.scheduleInDbByYear(year) 
+        const scheduleToDelete = scheduleAtStart[0].userSchedule[0]
+
+        await api
+            .delete(`/api/schedule/${year}/${scheduleToDelete._id}`)
+            .expect(204)
+
+        const schedulesAtEnd = await helper.scheduleInDbByYear(year)
+        const userSchedulAtEnd = schedulesAtEnd[0].userSchedule
+
+        expect(userSchedulAtEnd).toHaveLength(
+            helper.initialSchedule[0].userSchedule.length - 1
+        )
     })
 })
 

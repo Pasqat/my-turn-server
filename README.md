@@ -8,7 +8,7 @@
 - [X] add DB entry for schedule collection
 - [X] delete DB entry for schedule collection
 - [X] update DB entry for schedule collection
-- [ ] A new added person can't be edited.
+- [ ] A newly added person can't be edited.
 - [ ] Why mongoose validation don't work?
 - [ ] Team collections
     - [ ] controller
