@@ -11,11 +11,15 @@ const helper = require("./test_helper")
 beforeEach(async () => {
     await Schedule.deleteMany({})
 
-    let scheduleObject = new Schedule(helper.initialSchedule[0])
-    await scheduleObject.save()
+    const scheduleObjects = helper.initialSchedule.map(schedule => new Schedule(schedule))
+    const promiseArray = scheduleObjects.map(schedule => schedule.save())
+    await Promise.all(promiseArray)
 
-    scheduleObject = new Schedule(helper.initialSchedule[1])
-    await scheduleObject.save()
+    // let scheduleObject = new Schedule(helper.initialSchedule[0])
+    // await scheduleObject.save()
+
+    // scheduleObject = new Schedule(helper.initialSchedule[1])
+    // await scheduleObject.save()
 })
 
 describe("testing content and format of schedule", () => {
