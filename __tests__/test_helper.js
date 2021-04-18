@@ -1,4 +1,5 @@
 const Schedule = require("../models/schedule")
+const Team = require("../models/team")
 const {
     v4: uuidv4
 } = require("uuid")
@@ -40,6 +41,11 @@ const getFirstUserSchedule = async (year) => {
         year: year
     })
     return schedule[0].userSchedule.map(schedule => schedule.toJSON())
+}
+
+const teamsInDb = async () => {
+    const teams = await Team.find({})
+    return teams.map(t => t.toJSON())
 }
 
 const initialSchedule = [{
@@ -291,5 +297,6 @@ module.exports = {
     scheduleInDb,
     scheduleInDbByYear,
     scheduleInDbByMonth,
-    getFirstUserSchedule
+    getFirstUserSchedule,
+    teamsInDb
 }

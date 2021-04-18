@@ -1,52 +1,49 @@
+const bcrypt = require("bcrypt")
 const teamsRouter = require("express").Router()
-// TODO const Team = require("../models/team")
-const {
-    v4: uuidv4
-} = require("uuid")
+const Team = require("../models/team")
 
+// teamsRouter.get("/api/teams", (req, res) => {
+//     res.json(teams)
+// })
 
-// TODO: use an external file maybe
-app.get("/api/teams", (req, res) => {
+// teamsRouter.get("/api/teams/:id", (req, res) => {
+//     const id = req.params.id
+//     const team = teams.find(team => team.id === id)
+
+//     if (team) {
+//         res.json(team)
+
+//     } else {
+//         return res.status(404).end()
+//     }
+// })
+
+// teamsRouter.delete("/api/teams/:id", (req, res) => {
+//     const id = req.params.id
+//     teams = teams.filter(team => team.id !== id)
+//     return res.status(204).end()
+// })
+
+teamsRouter.get("/", async (req, res) => {
+    const teams = await Team.find({})
     res.json(teams)
 })
 
-app.get("/api/teams/:id", (req, res) => {
-    const id = req.params.id
-    const team = teams.find(team => team.id === id)
-
-    if (team) {
-        res.json(team)
-
-    } else {
-        return res.status(404).end()
-    }
-})
-
-app.delete("/api/teams/:id", (req, res) => {
-    const id = req.params.id
-    teams = teams.filter(team => team.id !== id)
-    return res.status(204).end()
-})
-
-app.post("/api/teams", (req, res) => {
+teamsRouter.post("/", async (req, res) => {
     const body = req.body
 
-    if (!body.name) {
-        return res.status(400).json({
-            error: "No Team Name provided"
-        })
-    }
+    const saltRound = 10
+    const passwordHash = await bcrypt.hash(body.password, saltRound)
 
-    const team = {
-        name: body.name,
-        // TODO schedule will be populated from the scheduleTime dataset
-        schedule: body.schedule || {},
-        dateOfCreation: new Date(),
-    }
+    const team = new Team({
+        teamName: body.teamName,
+        email: body.email,
+        passwordHash,
+    })
 
-    teams = teams.concat(team)
+    const savedTeam = await team.save()
 
-    res.json(team)
+    res.json(savedTeam)
 })
 
-module.export = teamsRouter
+module.exports = teamsRouter

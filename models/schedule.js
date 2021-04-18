@@ -25,14 +25,16 @@ const userScheduleSchema = new mongoose.Schema({
 })
 
 const scheduleSchema = new mongoose.Schema({
-    teamName: String,
-    teamId: String,
     acceptedSchift: [acceptedSchiftSchema],
     year: {
         type: Number,
         required: [true, "The year is mandatory, please"]
     },
-    userSchedule: [userScheduleSchema]
+    userSchedule: [userScheduleSchema],
+    team: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team'
+    }
 })
 
 scheduleSchema.set("toJSON", {
