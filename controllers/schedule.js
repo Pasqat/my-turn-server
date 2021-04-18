@@ -1,12 +1,13 @@
 const schedulesRouter = require("express").Router()
 const logger = require("../utils/logger")
 const Schedule = require("../models/schedule")
+const Team = require("../models/team")
 const {
     v4: uuidv4
 } = require("uuid")
 
 schedulesRouter.get("/", async (req, res) => {
-    const schedule = await Schedule.find({})
+    const schedule = await Schedule.find({}).populate("team", {teamName: 1})
     if (schedule) {
         res.json(schedule)
     } else {
@@ -74,6 +75,8 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
         })
     }
 
+    const team = await Team.findById(body.teamId)
+
     let userSchedule = {
         name: body.name,
         userId: uuidv4(),
@@ -87,8 +90,7 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
 
     if (!yearCheck) {
         const schedule = new Schedule({
-            teamName: body.teamName,
-            teamId: body.teamId,
+            team: team._id,
             // TODO acceptedSchift are best in a own collection and populate
             acceptedSchift: [],
             year: year,
@@ -96,6 +98,9 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
         })
 
         const savedSchedule = await schedule.save()
+        team.schedules = team.schedules.concat(savedSchedule._id)
+        await team.save()
+
         res.json(savedSchedule)
     }
 
