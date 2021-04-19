@@ -8,13 +8,17 @@ loginRouter.post("/", async (req, res) => {
 
     console.log('body', body)
 
-    const team = await Team.findOne({teamName: body.teamName})
-    const passwordCorrect = team === null
-        ? false
-        : await bcrypt.compare(body.password, team.passwordHash)
+    const team = await Team.findOne({
+        teamName: body.teamName
+    })
+    const passwordCorrect = team === null ?
+        false :
+        await bcrypt.compare(body.password, team.passwordHash)
 
     if (!(team && passwordCorrect)) {
-        return res.status(401).json({ error: "Invalid teamname or password"})
+        return res.status(401).json({
+            error: "Invalid teamname or password"
+        })
     }
 
     const teamForToken = {
@@ -22,10 +26,16 @@ loginRouter.post("/", async (req, res) => {
         id: team._id,
     }
 
-   const token = jwt.sign(teamForToken, process.env.SECRET)
+    // token expires after 1 month
+    const token = jwt.sign(teamForToken, process.env.SECRET, {
+        expiresIn: 2419200
+    })
 
     // TODO send the email too or not?
-    res.status(200).send({ token, teamName: team.teamName })
+    res.status(200).send({
+        token,
+        teamName: team.teamName
+    })
 })
 
 module.exports = loginRouter

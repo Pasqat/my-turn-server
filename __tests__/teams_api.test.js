@@ -6,6 +6,7 @@ const supertest = require("supertest")
 const app = require("../app")
 const api = supertest(app)
 
+// TODO added token auth. Test need to be update with jwt too
 describe("when there is initially one user in db", () => {
     beforeEach(async () => {
         await Team.deleteMany()
