@@ -8,13 +8,6 @@ const {
 } = require("uuid")
 
 
-const getTokenFrom = request => {
-    const authorization = request.get("authorization")
-    if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
-        return authorization.substring(7)
-    }
-    return null
-}
 
 // TODO how to handle schedule visualization for logged in and not logged in
 // user? From year with token auth or from client with no acces?
@@ -82,14 +75,13 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
     const body = req.body
     const year = Number(req.params.year)
     const month = Number(req.params.month)
-    const token = getTokenFrom(req)
-    const decodedToken = jwt.verify(token, process.env.SECRET)
+    const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
-    if (!token || !decodedToken.id) {
+    if (!decodedToken.id) {
         return res.status(401).json({ error: "Token missing or invalid"})
     }
 
-    const team = await Team.findById(decodedToken.id)
+    const team = req.team
 
     // FIXME this should be done by mongoose validation!!!
     if (!body.name) {
@@ -112,7 +104,6 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
     if (!yearCheck) {
         const schedule = new Schedule({
             team: team._id,
-            // TODO acceptedSchift are best in a own collection and populate
             acceptedSchift: [],
             year: year,
             userSchedule: [userSchedule]

@@ -32,8 +32,9 @@ app.use(express.static("build"))
 app.use(helmet())
 app.use(express.json())
 app.use(middleware.requestLogger)
+app.use(middleware.tokenExtractor)
 
-app.use("/api/schedule", schedulesRouter)
+app.use("/api/schedule", middleware.userExtractor, schedulesRouter)
 app.use("/api/team", teamsRouter)
 app.use("/api/login", loginRouter)
 
