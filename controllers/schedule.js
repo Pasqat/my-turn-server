@@ -1,13 +1,28 @@
 const schedulesRouter = require("express").Router()
 const logger = require("../utils/logger")
+const jwt = require("jsonwebtoken")
 const Schedule = require("../models/schedule")
 const Team = require("../models/team")
 const {
     v4: uuidv4
 } = require("uuid")
 
+
+const getTokenFrom = request => {
+    const authorization = request.get("authorization")
+    if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
+        return authorization.substring(7)
+    }
+    return null
+}
+
+// TODO how to handle schedule visualization for logged in and not logged in
+// user? From year with token auth or from client with no acces?
+// the first maybe can make link condivision easier?
 schedulesRouter.get("/", async (req, res) => {
-    const schedule = await Schedule.find({}).populate("team", {teamName: 1})
+    const schedule = await Schedule.find({}).populate("team", {
+        teamName: 1
+    })
     if (schedule) {
         res.json(schedule)
     } else {
@@ -67,6 +82,14 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
     const body = req.body
     const year = Number(req.params.year)
     const month = Number(req.params.month)
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+
+    if (!token || !decodedToken.id) {
+        return res.status(401).json({ error: "Token missing or invalid"})
+    }
+
+    const team = await Team.findById(decodedToken.id)
 
     // FIXME this should be done by mongoose validation!!!
     if (!body.name) {
@@ -74,8 +97,6 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
             error: 'No Name provided'
         })
     }
-
-    const team = await Team.findById(body.teamId)
 
     let userSchedule = {
         name: body.name,
