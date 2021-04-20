@@ -14,11 +14,11 @@ const mongoose = require("mongoose")
 logger.info("connecting to", config.MONGODB_URI)
 
 mongoose.connect(config.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        useFindAndModify: false
-    })
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+})
     .then(() => {
         logger.info("connected to MongoDB")
     })
@@ -34,7 +34,7 @@ app.use(express.json())
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
 
-app.use("/api/schedule", middleware.userExtractor, schedulesRouter)
+app.use("/api/schedule",  schedulesRouter)
 app.use("/api/team", teamsRouter)
 app.use("/api/login", loginRouter)
 

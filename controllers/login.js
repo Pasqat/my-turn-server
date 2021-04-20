@@ -6,8 +6,6 @@ const Team = require("../models/team")
 loginRouter.post("/", async (req, res) => {
     const body = req.body
 
-    console.log('body', body)
-
     const team = await Team.findOne({
         teamName: body.teamName
     })

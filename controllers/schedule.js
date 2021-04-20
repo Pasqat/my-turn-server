@@ -1,13 +1,12 @@
 const schedulesRouter = require("express").Router()
 const logger = require("../utils/logger")
+const { teamExtractor } = require("../utils/middelware")
 const jwt = require("jsonwebtoken")
 const Schedule = require("../models/schedule")
 const Team = require("../models/team")
 const {
     v4: uuidv4
 } = require("uuid")
-
-
 
 // TODO how to handle schedule visualization for logged in and not logged in
 // user? From year with token auth or from client with no acces?
@@ -71,14 +70,14 @@ schedulesRouter.delete("/:year/:id", async (req, res) => {
     res.status(204).end()
 })
 
-schedulesRouter.post("/:year/:month", async (req, res) => {
+schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
     const body = req.body
     const year = Number(req.params.year)
     const month = Number(req.params.month)
     const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
     if (!decodedToken.id) {
-        return res.status(401).json({ error: "Token missing or invalid"})
+        return res.status(401).json({ error: "Token missing or invalid" })
     }
 
     const team = req.team
@@ -86,7 +85,7 @@ schedulesRouter.post("/:year/:month", async (req, res) => {
     // FIXME this should be done by mongoose validation!!!
     if (!body.name) {
         return res.status(400).json({
-            error: 'No Name provided'
+            error: "No Name provided"
         })
     }
 

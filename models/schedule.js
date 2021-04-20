@@ -33,7 +33,7 @@ const scheduleSchema = new mongoose.Schema({
     userSchedule: [userScheduleSchema],
     team: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team'
+        ref: "Team"
     }
 })
 

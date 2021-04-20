@@ -3,7 +3,7 @@ const teamsRouter = require("express").Router()
 const Team = require("../models/team")
 
 teamsRouter.get("/", async (req, res) => {
-    const teams = await Team.find({}).populate('schedules', {year: 1, userSchedule: 1})
+    const teams = await Team.find({}).populate("schedules", { year: 1, userSchedule: 1 })
     res.json(teams)
 })
 
