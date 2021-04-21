@@ -4,9 +4,7 @@ const { teamExtractor } = require("../utils/middelware")
 const jwt = require("jsonwebtoken")
 const Schedule = require("../models/schedule")
 const Team = require("../models/team")
-const {
-    v4: uuidv4
-} = require("uuid")
+const { v4: uuidv4 } = require("uuid")
 
 // TODO how to handle schedule visualization for logged in and not logged in
 // user? From year with token auth or from client with no acces?
@@ -44,8 +42,10 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
         year: year
     })
 
-    const scheduledTimeBlock = schedule.userSchedule
-        .reduce((a, b) => b.month === month ? [...a, b] : a, [])
+    const scheduledTimeBlock = schedule.userSchedule.reduce(
+        (a, b) => (b.month === month ? [...a, b] : a),
+        []
+    )
 
     if (scheduledTimeBlock) {
         return res.json(scheduledTimeBlock)
@@ -54,19 +54,38 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
     }
 })
 
-schedulesRouter.delete("/:year/:id", async (req, res) => {
+schedulesRouter.delete("/:year/:id", teamExtractor, async (req, res) => {
     const id = req.params.id
     const year = req.params.year
 
-    await Schedule.updateOne({
-        year: year
-    }, {
-        $pull: {
-            "userSchedule": {
-                "_id": id
+    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+
+    if (!req.token || !decodedToken.id) {
+        return res.status(401).json({ error: "token missing or invalid" })
+    }
+
+    const team = req.team
+    const schedule = await Schedule.findOne({ year: year })
+
+    console.log("schedule", schedule)
+    if (schedule.team.toString() !== team.id.toString()) {
+        return res
+            .status(401)
+            .json({ error: "only the creator can delete or modify" })
+    }
+
+    await Schedule.updateOne(
+        {
+            year: year
+        },
+        {
+            $pull: {
+                userSchedule: {
+                    _id: id
+                }
             }
         }
-    })
+    )
     res.status(204).end()
 })
 
@@ -115,17 +134,18 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
         res.json(savedSchedule)
     }
 
-    const updatedSchedule = await Schedule
-        .updateOne({
+    const updatedSchedule = await Schedule.updateOne(
+        {
             year: year
-        }, {
+        },
+        {
             $push: {
-                "userSchedule": userSchedule
+                userSchedule: userSchedule
             }
-        })
+        }
+    )
 
     res.json(updatedSchedule)
-
 })
 
 schedulesRouter.put("/:year/:id", async (req, res) => {
@@ -135,15 +155,18 @@ schedulesRouter.put("/:year/:id", async (req, res) => {
 
     let newSchedule = body
 
-    const schedule = await Schedule
-        .updateOne({
+    const schedule = await Schedule.updateOne(
+        {
             year: year,
             "userSchedule._id": id
-        }, {
+        },
+        {
             "userSchedule.$.days": newSchedule
-        }, {
+        },
+        {
             new: true
-        })
+        }
+    )
     res.send(200).json(schedule)
 })
 

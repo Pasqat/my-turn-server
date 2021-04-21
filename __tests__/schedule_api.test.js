@@ -3,9 +3,7 @@ const bcrypt = require("bcrypt")
 const supertest = require("supertest")
 const app = require("../app")
 const api = supertest(app)
-const {
-    v4: uuidv4
-} = require("uuid")
+const { v4: uuidv4 } = require("uuid")
 
 const Schedule = require("../models/schedule")
 const Team = require("../models/team")
@@ -22,7 +20,6 @@ beforeEach(async () => {
 })
 
 describe("testing content and operation of schedule", () => {
-
     describe("when there is initailly some schedules saved", () => {
         test("schedules are returned as json", async () => {
             await api
@@ -38,7 +35,7 @@ describe("testing content and operation of schedule", () => {
 
         test("a specific schedule is within the returned schedule", async () => {
             const response = await api.get("/api/schedule")
-            const year = response.body.map(r => r.year)
+            const year = response.body.map((r) => r.year)
             expect(year).toContain(2021)
         })
     })
@@ -58,11 +55,9 @@ describe("testing content and operation of schedule", () => {
             const response = await api.get("/api/schedule/2021/4")
             expect(response.body).toHaveLength(2)
         })
-
     })
 
     describe("addition of new scheduled member", () => {
-
         let headers
 
         beforeEach(async () => {
@@ -72,16 +67,12 @@ describe("testing content and operation of schedule", () => {
                 password: "password"
             }
 
-            await api
-                .post("/api/team")
-                .send(newTeam)
+            await api.post("/api/team").send(newTeam)
 
-            const result = await api
-                .post("/api/login")
-                .send(newTeam)
+            const result = await api.post("/api/login").send(newTeam)
 
             headers = {
-                "Authorization": `bearer ${result.body.token}`
+                Authorization: `bearer ${result.body.token}`
             }
         })
 
@@ -101,9 +92,13 @@ describe("testing content and operation of schedule", () => {
                 .expect("Content-Type", /application\/json/)
 
             const schedulesAtEnd = await helper.getFirstUserSchedule(2021)
-            expect(schedulesAtEnd).toHaveLength(helper.initialSchedule[0].userSchedule.length + 1)
+            expect(schedulesAtEnd).toHaveLength(
+                helper.initialSchedule[0].userSchedule.length + 1
+            )
 
-            const namesInSchedule = schedulesAtEnd.map(schedule => schedule.name)
+            const namesInSchedule = schedulesAtEnd.map(
+                (schedule) => schedule.name
+            )
             expect(namesInSchedule).toContain("Tester")
         })
 
@@ -121,11 +116,12 @@ describe("testing content and operation of schedule", () => {
 
             const schedulesAtEnd = await helper.getFirstUserSchedule(2021)
 
-            expect(schedulesAtEnd).toHaveLength(helper.initialSchedule[0].userSchedule.length)
+            expect(schedulesAtEnd).toHaveLength(
+                helper.initialSchedule[0].userSchedule.length
+            )
         })
-    })
 
-    describe("deletion of a member", () => {
+        // FIXME result without correct authorization
         test("a schedule can be deleted", async () => {
             const year = 2021
             const scheduleAtStart = await helper.scheduleInDbByYear(year)
@@ -133,9 +129,11 @@ describe("testing content and operation of schedule", () => {
 
             await api
                 .delete(`/api/schedule/${year}/${scheduleToDelete._id}`)
+                .set(headers)
                 .expect(204)
 
             const schedulesAtEnd = await helper.scheduleInDbByYear(year)
+            console.log("end", schedulesAtEnd)
             const userSchedulAtEnd = schedulesAtEnd[0].userSchedule
 
             expect(userSchedulAtEnd).toHaveLength(
@@ -157,7 +155,6 @@ describe("when there is initially one user in db", () => {
 
     test("creation succeeds with a fresh teamName", async () => {
         const teamsAtStart = await helper.teamsInDb()
-        console.log("start", teamsAtStart)
 
         const newTeam = {
             teamName: "Team Rocket",
@@ -172,34 +169,32 @@ describe("when there is initially one user in db", () => {
             .expect("Content-Type", /application\/json/)
 
         const teamsAtEnd = await helper.teamsInDb()
-        console.log("end", teamsAtEnd)
         expect(teamsAtEnd).toHaveLength(teamsAtStart.length + 1)
 
-        const teamNames = teamsAtEnd.map(t => t.teamName)
+        const teamNames = teamsAtEnd.map((t) => t.teamName)
         expect(teamNames).toContain(newTeam.teamName)
     })
 
-    test("creation fails with proper statuscode and message if teamName already exist",
-        async () => {
-            const teamsAtStart = await helper.teamsInDb()
+    test("creation fails with proper statuscode and message if teamName already exist", async () => {
+        const teamsAtStart = await helper.teamsInDb()
 
-            const newTeam = {
-                teamName: "root",
-                email: "root@root.com",
-                password: "persian"
-            }
+        const newTeam = {
+            teamName: "root",
+            email: "root@root.com",
+            password: "persian"
+        }
 
-            const result = await api
-                .post("/api/team")
-                .send(newTeam)
-                .expect(400)
-                .expect("Content-Type", /application\/json/)
+        const result = await api
+            .post("/api/team")
+            .send(newTeam)
+            .expect(400)
+            .expect("Content-Type", /application\/json/)
 
-            expect(result.body.error).toContain("`teamName` to be unique")
+        expect(result.body.error).toContain("`teamName` to be unique")
 
-            const teamsAtEnd = await helper.teamsInDb()
-            expect(teamsAtEnd).toHaveLength(teamsAtStart.length)
-        })
+        const teamsAtEnd = await helper.teamsInDb()
+        expect(teamsAtEnd).toHaveLength(teamsAtStart.length)
+    })
 
     // TODO test for email uniqueness
     // test("creation fails for email already taken", async => {
