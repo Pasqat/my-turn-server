@@ -42,12 +42,11 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
         year: year
     })
 
-    const scheduledTimeBlock = schedule.userSchedule.reduce(
-        (a, b) => (b.month === month ? [...a, b] : a),
-        []
-    )
-
-    if (scheduledTimeBlock) {
+    if (schedule) {
+        const scheduledTimeBlock = schedule.userSchedule.reduce(
+            (a, b) => (b.month === month ? [...a, b] : a),
+            []
+        )
         return res.json(scheduledTimeBlock)
     } else {
         res.status(201).json([])
@@ -131,10 +130,11 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
         team.schedules = team.schedules.concat(savedSchedule._id)
         await team.save()
 
-        res.json(savedSchedule)
+        console.log("saved for new year", savedSchedule)
+        return res.json(savedSchedule.userSchedule[0])
     }
 
-    const updatedSchedule = await Schedule.updateOne(
+    const updatedSchedule = await Schedule.findOneAndUpdate(
         {
             year: year
         },
@@ -142,10 +142,14 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
             $push: {
                 userSchedule: userSchedule
             }
-        }
+        },
+        { new: true }
     )
 
-    res.json(updatedSchedule)
+    const updatedUserSchedule =
+        updatedSchedule.userSchedule[updatedSchedule.userSchedule.length - 1]
+
+    res.json(updatedUserSchedule)
 })
 
 schedulesRouter.put("/:year/:id", async (req, res) => {
