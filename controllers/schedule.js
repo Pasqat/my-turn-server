@@ -65,7 +65,6 @@ schedulesRouter.delete("/:year/:id", teamExtractor, async (req, res) => {
 
     const team = req.team
     const schedule = await Schedule.findOne({ year: year })
-    console.log("team", team, "schedule.team", schedule.team)
 
     if (schedule.team.toString() !== team._id.toString()) {
         return res
