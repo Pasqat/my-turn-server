@@ -65,9 +65,9 @@ schedulesRouter.delete("/:year/:id", teamExtractor, async (req, res) => {
 
     const team = req.team
     const schedule = await Schedule.findOne({ year: year })
+    console.log("team", team, "schedule.team", schedule.team)
 
-    console.log("schedule", schedule)
-    if (schedule.team.toString() !== team.id.toString()) {
+    if (schedule.team.toString() !== team._id.toString()) {
         return res
             .status(401)
             .json({ error: "only the creator can delete or modify" })
@@ -130,7 +130,6 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
         team.schedules = team.schedules.concat(savedSchedule._id)
         await team.save()
 
-        console.log("saved for new year", savedSchedule)
         return res.json(savedSchedule.userSchedule[0])
     }
 
