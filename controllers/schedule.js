@@ -56,8 +56,6 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
         team: decodedToken.id
     })
 
-    console.log(schedule)
-
     if (schedule) {
         const scheduledTimeBlock = schedule.userSchedule.reduce(
             (a, b) => (b.month === month ? [...a, b] : a),

@@ -8,18 +8,6 @@ teamsRouter.get("/", async (req, res) => {
     res.json(teams)
 })
 
-
-// teamsRouter.get("/schedules", async (req, res) => {
-//     console.log(decodedToken)
-//     const decodedToken = jwt.verify(req.token, process.env.SECRET)
-//     if (!req.token || !decodedToken.id) {
-//         return res.status(401).json({ error: "token missing or invalid" })
-//     }
-
-//     const team = await Team.findById(decodedToken.id).populate("schedules", { year: 1, userSchedule: 1 })
-//     res.json(team.schedules)
-// })
-
 teamsRouter.post("/", async (req, res) => {
     const body = req.body
 
@@ -33,7 +21,6 @@ teamsRouter.post("/", async (req, res) => {
     })
 
     const savedTeam = await team.save()
-
     res.json(savedTeam)
 })
 
