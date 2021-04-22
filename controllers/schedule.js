@@ -23,8 +23,15 @@ schedulesRouter.get("/", async (req, res) => {
 schedulesRouter.get("/:year", async (req, res) => {
     const year = Number(req.params.year)
 
+    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+
+    if (!req.token || !decodedToken.id) {
+        return res.status(401).json({ error: "token missing or invalid" })
+    }
+
     const schedule = await Schedule.find({
-        year: year
+        year: year,
+        team: decodedToken.id
     })
 
     if (Array.isArray(schedule)) {
@@ -38,9 +45,18 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
     const year = req.params.year
     const month = Number(req.params.month)
 
+    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+
+    if (!req.token || !decodedToken.id) {
+        return res.status(401).json({ error: "token missing or invalid" })
+    }
+
     const schedule = await Schedule.findOne({
-        year: year
+        year: year,
+        team: decodedToken.id
     })
+
+    console.log(schedule)
 
     if (schedule) {
         const scheduledTimeBlock = schedule.userSchedule.reduce(

@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 const teamsRouter = require("express").Router()
 const Team = require("../models/team")
 
@@ -6,6 +7,18 @@ teamsRouter.get("/", async (req, res) => {
     const teams = await Team.find({}).populate("schedules", { year: 1, userSchedule: 1 })
     res.json(teams)
 })
+
+
+// teamsRouter.get("/schedules", async (req, res) => {
+//     console.log(decodedToken)
+//     const decodedToken = jwt.verify(req.token, process.env.SECRET)
+//     if (!req.token || !decodedToken.id) {
+//         return res.status(401).json({ error: "token missing or invalid" })
+//     }
+
+//     const team = await Team.findById(decodedToken.id).populate("schedules", { year: 1, userSchedule: 1 })
+//     res.json(team.schedules)
+// })
 
 teamsRouter.post("/", async (req, res) => {
     const body = req.body
