@@ -88,7 +88,8 @@ schedulesRouter.delete("/:year/:id", teamExtractor, async (req, res) => {
 
     await Schedule.updateOne(
         {
-            year: year
+            year: year,
+            team: decodedToken.id
         },
         {
             $pull: {
@@ -128,7 +129,9 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
     }
 
     const yearCheck = await Schedule.findOne({
-        year
+        year,
+        team: decodedToken.id
+
     })
 
     if (!yearCheck) {
@@ -148,7 +151,8 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
 
     const updatedSchedule = await Schedule.findOneAndUpdate(
         {
-            year: year
+            year: year,
+            team: decodedToken.id
         },
         {
             $push: {
@@ -169,11 +173,18 @@ schedulesRouter.put("/:year/:id", async (req, res) => {
     const year = req.params.year
     const id = req.params.id
 
+    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+
+    if (!decodedToken.id) {
+        return res.status(401).json({ error: "Token missing or invalid" })
+    }
+
     let newSchedule = body
 
     const schedule = await Schedule.updateOne(
         {
             year: year,
+            team: decodedToken.id,
             "userSchedule._id": id
         },
         {
