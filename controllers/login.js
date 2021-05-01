@@ -25,6 +25,9 @@ loginRouter.post("/", async (req, res) => {
     }
 
     // token expires after 1 month
+    // this is so wrong. The token should exires every 15min. I must try the
+    // letcure on JWT, in order to have the expiration that long but with no
+    // automatic logof
     const token = jwt.sign(teamForToken, process.env.SECRET, {
         expiresIn: 2419200
     })
