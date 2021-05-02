@@ -1,14 +1,11 @@
 const schedulesRouter = require("express").Router()
-const logger = require("../utils/logger")
+// const logger = require("../utils/logger")
 const { teamExtractor } = require("../utils/middelware")
 const jwt = require("jsonwebtoken")
 const Schedule = require("../models/schedule")
-const Team = require("../models/team")
+// const Team = require("../models/team")
 const { v4: uuidv4 } = require("uuid")
 
-// TODO how to handle schedule visualization for logged in and not logged in
-// user? From year with token auth or from client with no acces?
-// the first maybe can make link condivision easier?
 schedulesRouter.get("/", async (req, res) => {
     const schedule = await Schedule.find({}).populate("team", {
         teamName: 1
