@@ -191,7 +191,11 @@ schedulesRouter.put("/:year/:id", async (req, res) => {
             new: true
         }
     )
-    res.send(200).json(schedule)
+
+    let newAcceptedShift = schedule.acceptedSchift
+
+    console.log(newAcceptedShift)
+    res.send(200).json(newAcceptedShift)
 })
 
 module.exports = schedulesRouter
