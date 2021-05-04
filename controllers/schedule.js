@@ -1,86 +1,91 @@
-const schedulesRouter = require("express").Router()
+const schedulesRouter = require("express").Router();
 // const logger = require("../utils/logger")
-const { teamExtractor } = require("../utils/middelware")
-const jwt = require("jsonwebtoken")
-const Schedule = require("../models/schedule")
+const { teamExtractor } = require("../utils/middelware");
+const jwt = require("jsonwebtoken");
+const Schedule = require("../models/schedule");
 // const Team = require("../models/team")
-const { v4: uuidv4 } = require("uuid")
+const { v4: uuidv4 } = require("uuid");
 
 schedulesRouter.get("/", async (req, res) => {
     const schedule = await Schedule.find({}).populate("team", {
         teamName: 1
-    })
+    });
     if (schedule) {
-        res.json(schedule)
+        res.json(schedule);
     } else {
-        res.status(404).end()
+        res.sendStatus(404).end();
     }
-})
+});
 
 schedulesRouter.get("/:year", async (req, res) => {
-    const year = Number(req.params.year)
+    const year = Number(req.params.year);
 
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+    const decodedToken = jwt.verify(req.token, process.env.SECRET);
 
     if (!req.token || !decodedToken.id) {
-        return res.status(401).json({ error: "token missing or invalid" })
+        return res.sendStatus(401).json({ error: "token missing or invalid" });
     }
 
     const schedule = await Schedule.find({
         year: year,
         team: decodedToken.id
-    })
+    });
 
     if (Array.isArray(schedule)) {
-        res.json(schedule)
+        res.json(schedule);
     } else {
-        return res.status(404).end()
+        return res.sendStatus(404).end();
     }
-})
+});
 
 schedulesRouter.get("/:year/:month", async (req, res) => {
-    const year = req.params.year
-    const month = Number(req.params.month)
+    const year = req.params.year;
+    const month = Number(req.params.month);
 
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+    const decodedToken = jwt.verify(req.token, process.env.SECRET);
 
     if (!req.token || !decodedToken.id) {
-        return res.status(401).json({ error: "token missing or invalid" })
+        return res.sendStatus(401).json({ error: "token missing or invalid" });
     }
 
     const schedule = await Schedule.findOne({
         year: year,
         team: decodedToken.id
-    })
+    });
 
     if (schedule) {
         const scheduledTimeBlock = schedule.userSchedule.reduce(
             (a, b) => (b.month === month ? [...a, b] : a),
             []
-        )
-        return res.json(scheduledTimeBlock)
+        );
+        return res.json(scheduledTimeBlock);
     } else {
-        res.status(201).json([])
+        res.sendStatus(201).json([]);
     }
-})
+});
 
 schedulesRouter.delete("/:year/:id", teamExtractor, async (req, res) => {
-    const id = req.params.id
-    const year = req.params.year
+    const id = req.params.id;
+    const year = req.params.year;
 
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+    const decodedToken = jwt.verify(req.token, process.env.SECRET);
 
     if (!req.token || !decodedToken.id) {
-        return res.status(401).json({ error: "token missing or invalid" })
+        return res.sendStatus(401).json({ error: "token missing or invalid" });
     }
 
-    const team = req.team
-    const schedule = await Schedule.findOne({ year: year })
+    const team = req.team;
+    const schedule = await Schedule.findOne({
+        year: year,
+        team: decodedToken.id
+    });
+
+    console.log("schedule.team", schedule.team, "team", team._id);
 
     if (schedule.team.toString() !== team._id.toString()) {
         return res
-            .status(401)
-            .json({ error: "only the creator can delete or modify" })
+            .sendStatus(401)
+            .json({ error: "only the creator can delete or modify" });
     }
 
     await Schedule.updateOne(
@@ -95,27 +100,28 @@ schedulesRouter.delete("/:year/:id", teamExtractor, async (req, res) => {
                 }
             }
         }
-    )
-    res.status(204).end()
-})
+    );
+    res.sendStatus(204).end();
+});
 
 schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
-    const body = req.body
-    const year = Number(req.params.year)
-    const month = Number(req.params.month)
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+    const body = req.body;
+    const year = Number(req.params.year);
+    const month = Number(req.params.month);
+    const decodedToken = jwt.verify(req.token, process.env.SECRET);
 
     if (!decodedToken.id) {
-        return res.status(401).json({ error: "Token missing or invalid" })
+        return res.sendStatus(401).json({ error: "Token missing or invalid" });
     }
 
-    const team = req.team
+    const team = req.team;
+    console.log("decodedToken on post", decodedToken, "team", team);
 
     // FIXME this should be done by mongoose validation!!!
     if (!body.name) {
-        return res.status(400).json({
+        return res.sendStatus(400).json({
             error: "No Name provided"
-        })
+        });
     }
 
     let userSchedule = {
@@ -123,13 +129,12 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
         userId: uuidv4(),
         days: body.days || [],
         month: month
-    }
+    };
 
     const yearCheck = await Schedule.findOne({
         year,
         team: decodedToken.id
-
-    })
+    });
 
     if (!yearCheck) {
         const schedule = new Schedule({
@@ -137,13 +142,13 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
             acceptedSchift: [],
             year: year,
             userSchedule: [userSchedule]
-        })
+        });
 
-        const savedSchedule = await schedule.save()
-        team.schedules = team.schedules.concat(savedSchedule._id)
-        await team.save()
+        const savedSchedule = await schedule.save();
+        team.schedules = team.schedules.concat(savedSchedule._id);
+        await team.save();
 
-        return res.json(savedSchedule.userSchedule[0])
+        return res.json(savedSchedule.userSchedule[0]);
     }
 
     const updatedSchedule = await Schedule.findOneAndUpdate(
@@ -157,26 +162,26 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
             }
         },
         { new: true }
-    )
+    );
 
     const updatedUserSchedule =
-        updatedSchedule.userSchedule[updatedSchedule.userSchedule.length - 1]
+        updatedSchedule.userSchedule[updatedSchedule.userSchedule.length - 1];
 
-    res.json(updatedUserSchedule)
-})
+    res.json(updatedUserSchedule);
+});
 
 schedulesRouter.put("/:year/:id", async (req, res) => {
-    const body = req.body
-    const year = req.params.year
-    const id = req.params.id
+    const body = req.body;
+    const year = req.params.year;
+    const id = req.params.id;
 
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+    const decodedToken = jwt.verify(req.token, process.env.SECRET);
 
     if (!decodedToken.id) {
-        return res.status(401).json({ error: "Token missing or invalid" })
+        return res.sendStatus(401).json({ error: "Token missing or invalid" });
     }
 
-    let newSchedule = body
+    let newSchedule = body;
 
     const schedule = await Schedule.updateOne(
         {
@@ -190,12 +195,12 @@ schedulesRouter.put("/:year/:id", async (req, res) => {
         {
             new: true
         }
-    )
+    );
 
-    let newAcceptedShift = schedule.acceptedSchift
+    let newAcceptedShift = schedule.acceptedSchift;
 
-    console.log(newAcceptedShift)
-    res.send(200).json(newAcceptedShift)
-})
+    console.log(newAcceptedShift);
+    res.sendStatus(200).json(newAcceptedShift);
+});
 
-module.exports = schedulesRouter
+module.exports = schedulesRouter;

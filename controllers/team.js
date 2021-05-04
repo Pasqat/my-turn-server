@@ -47,8 +47,6 @@ teamsRouter.put("/accepted-shift/", async (req, res) => {
     const body = req.body;
     const decodedToken = jwt.verify(req.token, process.env.SECRET);
 
-    console.log(body);
-
     if (!req.token || !decodedToken.id) {
         return res.status(401).json({ error: "token missing or invalid" });
     }
