@@ -34,7 +34,7 @@ loginRouter.post("/", async (req, res) => {
     });
 
     // send the email too?
-    res.sendStatus(200).send({
+    res.status(200).send({
         token,
         teamName: team.teamName
     });
