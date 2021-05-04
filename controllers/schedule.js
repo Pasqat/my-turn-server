@@ -80,8 +80,6 @@ schedulesRouter.delete("/:year/:id", teamExtractor, async (req, res) => {
         team: decodedToken.id
     });
 
-    console.log("schedule.team", schedule.team, "team", team._id);
-
     if (schedule.team.toString() !== team._id.toString()) {
         return res
             .sendStatus(401)
@@ -115,7 +113,6 @@ schedulesRouter.post("/:year/:month", teamExtractor, async (req, res) => {
     }
 
     const team = req.team;
-    console.log("decodedToken on post", decodedToken, "team", team);
 
     // FIXME this should be done by mongoose validation!!!
     if (!body.name) {

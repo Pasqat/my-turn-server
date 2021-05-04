@@ -2,29 +2,32 @@ const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const acceptedShift = new mongoose.Schema({
-    shiftName: String,
+    shiftName: {
+        type: String,
+        unique: true
+    },
     color: String,
-    hours: Number,
+    hours: Number
 });
 
 const teamSchema = new mongoose.Schema({
     teamName: {
         type: String,
         minLength: 4,
-        unique: true,
+        unique: true
     },
     email: {
         type: String,
-        unique: true,
+        unique: true
     },
     passwordHash: String,
     acceptedShift: [acceptedShift],
     schedules: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Schedule",
-        },
-    ],
+            ref: "Schedule"
+        }
+    ]
 });
 
 teamSchema.set("toJSON", {
@@ -34,7 +37,7 @@ teamSchema.set("toJSON", {
         delete returnedObject.__v;
         // the passwordHash is a secret 🤫
         delete returnedObject.passwordHash;
-    },
+    }
 });
 
 teamSchema.plugin(uniqueValidator);
