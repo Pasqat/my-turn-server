@@ -6,7 +6,7 @@ const Team = require("../models/team");
 teamsRouter.get("/", async (req, res) => {
     const teams = await Team.find({}).populate("schedules", {
         year: 1,
-        userSchedule: 1,
+        userSchedule: 1
     });
     res.json(teams);
 });
@@ -21,6 +21,8 @@ teamsRouter.post("/", async (req, res) => {
         teamName: body.teamName,
         email: body.email,
         passwordHash,
+        acceptedShift: [],
+        schedules: []
     });
 
     const savedTeam = await team.save();

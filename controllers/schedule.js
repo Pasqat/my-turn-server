@@ -45,7 +45,7 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
     const decodedToken = jwt.verify(req.token, process.env.SECRET);
 
     if (!req.token || !decodedToken.id) {
-        return res.sendStatus(401).json({ error: "token missing or invalid" });
+        return res.status(401).json({ error: "token missing or invalid" });
     }
 
     const schedule = await Schedule.findOne({
@@ -60,7 +60,7 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
         );
         return res.json(scheduledTimeBlock);
     } else {
-        res.sendStatus(201).json([]);
+        res.json([]);
     }
 });
 
