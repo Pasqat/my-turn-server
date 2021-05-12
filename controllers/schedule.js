@@ -60,7 +60,7 @@ schedulesRouter.get("/:year/:month", async (req, res) => {
         );
         return res.json(scheduledTimeBlock);
     } else {
-        res.json([]);
+        res.status(201).json([]);
     }
 });
 
