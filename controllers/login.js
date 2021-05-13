@@ -15,7 +15,7 @@ loginRouter.post("/", async (req, res) => {
             : await bcrypt.compare(body.password, team.passwordHash);
 
     if (!(team && passwordCorrect)) {
-        return res.sendStatus(401).json({
+        return res.status(401).json({
             error: "Invalid teamname or password"
         });
     }
